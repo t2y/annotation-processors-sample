@@ -1,0 +1,22 @@
+package {{ packageName }};
+
+import org.apache.kafka.streams.processor.Processor;
+import org.apache.kafka.streams.processor.ProcessorContext;
+
+public class {{ className }} implements Processor<{{ keyType }}, {{ valueType }}> {
+
+  private ProcessorContext context;
+
+  @Override
+  public void init(ProcessorContext context) {
+    this.context = context;
+  }
+
+  @Override
+  public void process({{ keyType }} key, {{ valueType }} value) {
+    this.context.forward(key, value);
+  }
+
+  @Override
+  public void close() {}
+}

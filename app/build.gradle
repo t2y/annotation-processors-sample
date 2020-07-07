@@ -1,0 +1,37 @@
+plugins {
+    id 'application'
+    id 'com.commercehub.gradle.plugin.avro' version '0.20.0'
+}
+
+avro {
+    dateTimeLogicalType = 'JSR310'
+    createOptionalGetters = true
+}
+
+dependencies {
+    implementation 'io.confluent:kafka-avro-serializer:5.5.0'
+    implementation 'io.confluent:kafka-streams-avro-serde:5.5.0'
+    implementation 'org.apache.avro:avro:1.9.2'
+    implementation 'org.apache.kafka:kafka-streams:2.5.0'
+
+    annotationProcessor project(':processor')
+}
+
+// for debugging
+tasks.withType(JavaExec) {
+    if (System.getProperty('DEBUG', 'false') == 'true') {
+        jvmArgs '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005'
+    }
+}
+
+sourceSets.main.java.srcDir 'build/generated/sources/annotationProcessor/java/main'
+
+application {
+    sourceCompatibility = 1.11
+    targetCompatibility = 1.11
+    mainClassName = 'sample.Main'
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,15 @@
+{
+  "type" : "record",
+  "name" : "Payload",
+  "namespace" : "sample.data",
+  "fields" : [ {
+    "name" : "id",
+    "type" : "long"
+  }, {
+    "name" : "number",
+    "type" : "int"
+  }, {
+    "name" : "text",
+    "type" : "string"
+  } ]
+}
