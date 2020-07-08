@@ -1,18 +1,2 @@
-plugins {
-    id 'maven-publish'
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'sample'
-            artifactId = 'annotation'
-            version = '0.1.0'
-
-            from components.java
-        }
-    }
-}
-
 dependencies {
 }
