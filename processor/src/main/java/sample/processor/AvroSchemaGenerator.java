@@ -1,6 +1,5 @@
 package sample.processor;
 
-import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.google.auto.service.AutoService;
 import java.io.IOException;
@@ -16,34 +15,41 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import sample.annotation.MyType;
+import sample.processor.template.JavaSource;
 import sample.processor.template.ProcessorTemplate;
 
 @Slf4j
-@SupportedAnnotationTypes("org.apache.avro.specific.AvroGenerated")
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
 @AutoService(Processor.class)
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedAnnotationTypes({"sample.annotation.MyType", "sample.annotation.MyField"})
 public class AvroSchemaGenerator extends AbstractProcessor {
 
+  @SneakyThrows
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    if (annotations.isEmpty()) {
+      return false;
+    }
     for (TypeElement annotation : annotations) {
-      Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
-      for (Element e : annotatedElements) {
-        if (e.toString().endsWith("Builder")) {
-          continue;
-        }
-        try {
-          String className = e.toString();
-          writeSerdeFile(className);
-          writeProcessorFile(className);
-        } catch (IOException exe) {
-          exe.printStackTrace();
-        }
+      log.info("passed annotation: {}", annotation.toString());
+    }
+
+    Set<? extends Element> myTypeElements = roundEnv.getElementsAnnotatedWith(MyType.class);
+    for (Element e : myTypeElements) {
+      if (e.toString().endsWith("Builder")) {
+        continue;
       }
+      String className = e.toString();
+      writeSerdeFile(className);
+      writeProcessorFile(className);
     }
     return true;
   }
+
+  private static final Template PROCESSOR_TEMPLATE = JavaSource.PROCESSOR.getTemplate();
 
   private void writeProcessorFile(String className) throws IOException {
     log.info("target class: {}", className);
@@ -57,9 +63,7 @@ public class AvroSchemaGenerator extends AbstractProcessor {
     String processorClassName = className + "Processor";
     String processorSimpleClassName = processorClassName.substring(lastDot + 1);
 
-    Handlebars handlebars = new Handlebars();
-    ProcessorTemplate template =
-        handlebars.compile("processor_template").as(ProcessorTemplate.class);
+    ProcessorTemplate template = PROCESSOR_TEMPLATE.as(ProcessorTemplate.class);
     template.setPackageName(packageName);
     template.setClassName(processorSimpleClassName);
     template.setKeyType("String");
@@ -70,6 +74,8 @@ public class AvroSchemaGenerator extends AbstractProcessor {
       template.apply(null, out);
     }
   }
+
+  private static final Template SERDE_TEMPLATE = JavaSource.SERDE.getTemplate();
 
   private void writeSerdeFile(String className) throws IOException {
     log.info("target class: {}", className);
@@ -88,12 +94,9 @@ public class AvroSchemaGenerator extends AbstractProcessor {
     map.put("className", serdeSimpleClassName);
     map.put("typeParameter", simpleClassName);
 
-    Handlebars handlebars = new Handlebars();
-    Template template = handlebars.compile("serde_template");
-
-    JavaFileObject builderFile = processingEnv.getFiler().createSourceFile(serdeClassName);
-    try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
-      template.apply(map, out);
+    JavaFileObject obj = processingEnv.getFiler().createSourceFile(serdeClassName);
+    try (PrintWriter out = new PrintWriter(obj.openWriter())) {
+      SERDE_TEMPLATE.apply(map, out);
     }
   }
 }

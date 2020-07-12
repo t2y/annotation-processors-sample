@@ -2,6 +2,7 @@
   "type" : "record",
   "name" : "Container",
   "namespace" : "sample.data",
+  "javaAnnotation": "sample.annotation.MyType",
   "fields" : [ {
     "name" : "id",
     "type" : "long"
@@ -10,6 +11,7 @@
     "type" : "string"
   }, {
     "name" : "payload",
-    "type" : "sample.data.Payload"
+    "type" : "sample.data.Payload",
+    "javaAnnotation": "sample.annotation.MyField"
   } ]
 }

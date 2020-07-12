@@ -14,6 +14,7 @@ dependencies {
     implementation 'org.apache.avro:avro:1.9.2'
     implementation 'org.apache.kafka:kafka-streams:2.5.0'
 
+    compile project(':annotation')
     annotationProcessor project(':processor')
 }
 
@@ -24,14 +25,8 @@ tasks.withType(JavaExec) {
     }
 }
 
-sourceSets.main.java.srcDir 'build/generated/sources/annotationProcessor/java/main'
-
 application {
     sourceCompatibility = 1.11
     targetCompatibility = 1.11
     mainClassName = 'sample.Main'
-}
-
-test {
-    useJUnitPlatform()
 }

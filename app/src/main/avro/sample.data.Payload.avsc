@@ -2,6 +2,7 @@
   "type" : "record",
   "name" : "Payload",
   "namespace" : "sample.data",
+  "javaAnnotation": "sample.annotation.MyType",
   "fields" : [ {
     "name" : "id",
     "type" : "long"
