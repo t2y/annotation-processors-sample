@@ -15,3 +15,9 @@ app/build/generated/sources/annotationProcessor/java/main
         |-- PayloadProcessor.java
         `-- PayloadSerde.java
 ```
+
+For debugging, pass debug jvm arguments to gradle.
+
+```bash
+$ ./gradlew --info :app:compileJava -Dorg.gradle.jvmargs='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005'
+```
